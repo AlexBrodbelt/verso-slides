@@ -11,4 +11,4 @@ open VersoSlides
 def main : IO UInt32 :=
   slidesMain
     (config := { theme := "black", slideNumber := true, transition := "slide" })
-    (doc := %doc Demo)
+    (doc := Demo.slidesDoc)

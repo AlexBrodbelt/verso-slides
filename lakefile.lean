@@ -9,6 +9,7 @@ open System Lake DSL
 
 require verso from git "https://github.com/leanprover/verso.git"@"main"
 require illuminate from git "https://github.com/leanprover/illuminate.git"@"main"
+require mathlib from git "https://github.com/leanprover-community/mathlib4"@"v4.30.0-rc2"
 
 package «verso-slides» where
   version := v!"0.1.0"

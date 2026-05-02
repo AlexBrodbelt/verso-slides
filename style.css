@@ -1,0 +1,14 @@
+/* Target the reveal.js container specifically */
+.reveal {
+  font-size: 32px; /* The default is usually 40px; adjust lower to shrink */
+}
+
+/* Optional: Shrink headers proportionally */
+.reveal h1 { font-size: 2.0em; }
+.reveal h2 { font-size: 1.5em; }
+
+/* Shrink Lean code blocks specifically */
+.reveal pre code {
+  font-size: 0.8em;
+  line-height: 1.2;
+}
