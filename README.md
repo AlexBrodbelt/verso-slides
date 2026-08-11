@@ -8,7 +8,7 @@ full support for Verso's elaborated Lean code blocks, including syntax
 highlighting and hover-based documentation tooltips.
 
 The [demo slides](./Demo.lean) can be seen at
-[this repository's GitHub pages](https://leanprover.github.io/verso-slides/).
+[this repository's GitHub pages](https://alexbrodbelt.github.io/verso-slides/).
 
 ## Requirements
 
