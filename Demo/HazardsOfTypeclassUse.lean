@@ -6,8 +6,6 @@ import Mathlib.Data.ENNReal.Real
 
 -- what is a diamond
 
--- explain the topology/metric space diamond
-
 open VersoSlides
 
 variable {α β : Type u}
