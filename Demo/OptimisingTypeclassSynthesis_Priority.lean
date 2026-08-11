@@ -1,7 +1,7 @@
 import VersoSlides
 import Verso.Doc.Concrete
 import Mathlib.Algebra.Algebra.RestrictScalars
-
+import Mathlib.Analysis.Normed.Group.Defs
 
 open VersoSlides
 
@@ -15,26 +15,55 @@ set_option verso.code.warnLineLength 500
 
 #doc (Slides) "Priorities" =>
 
-# Slow instances
+# TYPECLASSES IN MATHLIB
 
-Sometimes instance synthesis can take long and therefore it is convenient
-to set a preference for which instances to look for first.
+%%%
+autoAnimate := true
+%%%
 
-We now demonstrate with an example what working with priorities is like
+:::vstack
+1. Mathlib, its missions and design considerations
 
-# A pretty diamond 💎
+2. Typeclass use in Mathlib
 
-:::fragment fadeUp
-To illustrate how tweaking the priorities of instances might be useful to make instance synthesis faster.
+3. Optimising typeclass synthesis in Mathlib
 
-Recall the diamond described last week:
+4. Hazards of typeclass use
 
-::stretch
-{image "../figures/SingleDiamond.svg"}[Diamond]
-::
+5. Type synonyms
 :::
 
-# A pretty diamond 💎
+# TYPECLASSES IN MATHLIB
+
+%%%
+autoAnimate := true
+%%%
+
+:::fitText
+3. Optimising typeclass synthesis in Mathlib
+
+Priorities
+:::
+
+# 3. Optimising typeclass synthesis in Mathlib
+
+:::fragment fadeUp
+As illustrated last week, many hierarchies present diamonds.
+
+{image "../figures/HierarchyAlgebra.png" (width := "600px")}[Algebraic hierarchy]
+
+Diamonds are not always bad. But there are performance considerations to keep in mind.
+:::
+
+# 3. Optimising typeclass synthesis in Mathlib
+
+Consider the toy example covered last week.
+
+:::fragment fadeUp
+{image "../figures/SingleDiamond.svg" (width := "700px")}[Diamond]
+:::
+
+# 3. Optimising typeclass synthesis in Mathlib
 
 :::fragment fadeUp
 In code this corresponds to:
@@ -52,7 +81,7 @@ class Diamond (B : Type u) extends LeftBranch B, RightBranch B
 ```
 :::
 
-# GETTING OUR PRIORITIES RIGHT
+# 3. Optimising typeclass synthesis in Mathlib
 
 Let us define a type which has a {lean}`Diamond` instance
 
@@ -67,34 +96,27 @@ On the right hand, if we now ask the instance synthesis algorithm to infer that 
 has the {lean}`Base` instance, we get the following path:
 
 ```lean
--- !hide
 set_option trace.Meta.synthInstance true in
--- !end hide
+
 #synth Base D
 
 ```
 :::
-# GETTING OUR PRIORITIES RIGHT
+# 3. Optimising typeclass synthesis in Mathlib
 
 :::fragment fadeUp
 
 On the left hand, if we now tweak the priority of the {lean}`LeftBranch` instance
 
-```lean -panel
-instance (priority := high) (B : Type u) [LeftBranch B] : Base B :=
-  inferInstance
-```
-
 ```lean
--- !hide
-set_option trace.Meta.synthInstance true in
---!end hide
-#synth Base D
+instance (priority := high) {α : Type u} [LeftBranch α] : Base α := inferInstance
 
+set_option trace.Meta.synthInstance true in
+#synth Base D
 ```
 :::
 
-# Priorities in the wild
+# 3. Optimising typeclass synthesis in Mathlib
 
 :::fragment fadeUp
 So far so good.
@@ -104,7 +126,7 @@ Our toy example was not too interesting.
 But it does illustrate how priorities tell the
 instance synthesis algorithm to consider certain instances before others.
 
-Consider the random definition I found in Mathlib
+Consider the "random" definition found in Mathlib
 
 ```lean
 -- !hide
@@ -125,7 +147,7 @@ end test
 ```
 :::
 
-# Priorities in the wild
+# 3. Optimising typeclass synthesis in Mathlib
 
 ```lean
 -- !hide
@@ -151,20 +173,59 @@ When we peek into the trace of the instance synthesis algorithm we keep seeing
 
 This is not by chance!
 
-{lean}`Algebra.id` instance is a great example of what instances should have a high priority.
-
-If it is to fail, it generally fails quickly!
-
-If it is to be successful, it is almost surely the instance we want
-
-For context, see how many instances are of the form `Algebra ?R ?S`
+But first, let's do a loogle search.
 :::
 
-# Priorities in the wild
+# 3. Optimising typeclass synthesis in Mathlib
 
-
-{image "../figures/AlgebraInstances.png" (width := "600px")}[Algebra Instances]
+{image "../figures/AlgebraInstances.png" (width := "500px")}[Algebra Instances]
 
 :::fragment fadeUp
-The list does go on.
+The list indeed goes on.
+:::
+
+# 3. Optimising typeclass synthesis in Mathlib
+
+As we saw, there are many instances of the from `Algebra ?R ?S`.
+
+:::fragment fadeUp
+As anticipated, {lean}`Algebra.id` has a high priority.
+
+Why?
+
+If it is to fail, it generally fails fast.
+
+If it is to be successful, it is almost surely the instance we want.
+:::
+
+# 3. Optimising typeclass synthesis in Mathlib
+
+:::fragment fadeUp
+
+Dually, we can also set low priorities for instances which are most likely not going to succeed.
+
+Considering that when searching for algebraic instances we often do not need to search for the `Normed` hierarchy.
+
+We can set
+
+```lean -panel
+attribute [instance 200] ESeminormedAddMonoid.toAddMonoid
+```
+
+To have the instance synthesis algorithm explore the `Normed` hierarchy last.
+:::
+
+# 3. Optimising typeclass synthesis in Mathlib
+
+Summarising,
+
+:::fragment fadeUp
+Set high priorities for instances that are cheap to fail
+and are often what one wants, as seen with {lean}`Algebra.id`
+
+Set low priorities for instances which are less likely to apply,
+as seen with `ESeminormedAddMonoid.toAddMonoid`
+
+However, there are rumours that the typeclass system will be redesigned in some
+way which will render priority twiddling obsolete.
 :::
